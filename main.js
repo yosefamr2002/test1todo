@@ -3,6 +3,9 @@ var desc = document.querySelector("#description");
 var btn = document.querySelector("#btn");
 var tasklist = document.querySelector(".tasklist");
 var arrayoftasks = [];
+var search = document.querySelector("#searcinput");
+var currentEditId = null;
+
 //make array == local storage 
 
 if(localStorage.getItem("tasks")){
@@ -23,10 +26,49 @@ tasklist.addEventListener("click",function (e) {
 })
 
 
+//done botton 
+tasklist.addEventListener("click", function (e) {
+    if (e.target.classList.contains("taskstatus")) {
+        e.target.classList.add("taskdone");
+        e.target.classList.remove("taskstatus");
+    } else if (e.target.classList.contains("taskdone")) {
+        e.target.classList.add("taskstatus");
+        e.target.classList.remove("taskdone");
+    }
+});
+
+
+
+//edite btn 
+tasklist.addEventListener("click",function (e) {
+    if(e.target.classList.contains("edit_btn")){
+    edittaskwith(e.target.parentElement.getAttribute("id"));
+    }
+    
+})
+
+function edittaskwith(id) {
+    const todo = arrayoftasks.find(task => task.id == id);
+    if (todo) {
+        title.value = todo.title;
+        desc.value = todo.desc;
+        currentEditId = id; // نخزن ال id اللي بنعدله
+        btn.innerText = "Save Edit"; // نغير شكل الزرار بدل Add
+    }
+}
+
+
+
 //main
 btn.addEventListener("click",function(){
     
     if(title.value!=="" && desc.value!==""){
+        //edit buttin 
+        if (currentEditId) {
+            updateTask(currentEditId);
+        } else {
+
+            //add new task
         const todo = {
             id: Date.now(),
             title : title.value,
@@ -40,8 +82,10 @@ btn.addEventListener("click",function(){
         
         
         title.value=""
-        desc.value=""  
-    }else {
+        desc.value="" 
+        currentEditId = null; 
+        btn.innerText = "Add";
+    }}else {
         window.alert("input is required")
     }
     
@@ -61,6 +105,8 @@ function addtodotoarray(todo){
 //display tasks
 function addelementtotasklists(arrayoftasks){
    
+
+
    //clear the tasklist
     tasklist.innerHTML = "";
 
@@ -70,16 +116,42 @@ function addelementtotasklists(arrayoftasks){
         var div = document.createElement("div")
         div.id= todo.id;
         div.className = "task";
-        div.appendChild(document.createTextNode(todo.title))
+        div.appendChild(document.createTextNode(todo.title));
+
+
+        // //create class for buttons
+        // var bottons = document.createElement("div");
+        // bottons.className = "bottons";
+        // div.appendChild(bottons)
+       
+         //edit button 
+         var edit = document.createElement("button");
+         edit.className = "edit_btn";
+         edit.appendChild(document.createTextNode("Edit"));
+         div.appendChild(edit)
+       
+       
+       
         //delte btn 
         var del = document.createElement("button");
         del.className = "delete_btn";
         del.appendChild(document.createTextNode("delete"));
         div.appendChild(del)
+
         
+        //done btn 
+        var del = document.createElement("button");
+        del.className = "taskstatus";
+        del.appendChild(document.createTextNode("done"));
+        div.appendChild(del)
+      
+
         tasklist.appendChild(div)        
     });
 }
+
+
+
 
 //add to local storage 
 function  addtolocalstorage(arrayoftasks){
@@ -107,4 +179,34 @@ function deleteTaskWith(id){
     console.log(arrayoftasks);
     
  }
+
+
+
+
+ //search 
+ searcinput.addEventListener("input",function(){
+    
+  var srch=  arrayoftasks.filter(todo => todo.title.includes(search.value))
+  addelementtotasklists(srch);
+
+
+ })
+ 
+
+ //update task
+ function updateTask(id) {
+    arrayoftasks = arrayoftasks.map(todo => {
+        if (todo.id == id) {
+            return {
+                ...todo,
+                title: title.value,
+                desc: desc.value
+            };
+        }
+        return todo;
+    });
+    // location.reload();
+    addelementtotasklists(arrayoftasks);
+    addtolocalstorage(arrayoftasks); 
+}
  logarray()
