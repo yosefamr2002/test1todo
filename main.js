@@ -60,37 +60,42 @@ function edittaskwith(id) {
 
 
 //main
-btn.addEventListener("click",function(){
+btn.addEventListener("click", function () {
     
-    if(title.value!=="" && desc.value!==""){
-        //edit buttin 
+    if (title.value !== "" && desc.value !== "") {
+        
+        // هنا validation
+        if (!validateInputs(title.value, desc.value)) {
+            return; // لو validation غلط، وقف الكود
+        }
+        
+        //edit button 
         if (currentEditId) {
             updateTask(currentEditId);
         } else {
 
             //add new task
-        const todo = {
-            id: Date.now(),
-            title : title.value,
-            desc : desc.value,
-            done : false 
+            const todo = {
+                id: Date.now(),
+                title: title.value,
+                desc: desc.value,
+                done: false 
+            };
+
+            addtodotoarray(todo);
+            addelementtotasklists(arrayoftasks);
+
+            title.value = "";
+            desc.value = "";
+            currentEditId = null;
+            btn.innerText = "Add";
         }
-        
-        addtodotoarray(todo);
-        addelementtotasklists(arrayoftasks);
-    
-        
-        
-        title.value=""
-        desc.value="" 
-        currentEditId = null; 
-        btn.innerText = "Add";
-    }}else {
-        window.alert("input is required")
+
+    } else {
+        window.alert("input is required");
     }
-    
-   
-})
+});
+
 
 
 
@@ -208,5 +213,28 @@ function deleteTaskWith(id){
     // location.reload();
     addelementtotasklists(arrayoftasks);
     addtolocalstorage(arrayoftasks); 
+    location.reload();
 }
+
+
+
+function validateInputs(title, description) {
+    // Regular expression  title
+    const titleRegex = /^[A-Z][a-z]{3,8}$/;
+  
+    // Validation  title
+    if (!titleRegex.test(title)) {
+      alert("Title must start with an uppercase letter followed by 3 to 8 lowercase letters.");
+      return false;
+    }
+  
+    // Validation  description
+    if (description.length < 20) {
+      alert("Description must be more than 20 characters.");
+      return false;
+    }
+  
+    return true; 
+  }
+  
  logarray()
